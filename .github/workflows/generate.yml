@@ -18,7 +18,7 @@ jobs:
     - name: Set up rust caching
       uses: Swatinem/rust-cache@v2
       with:
-        workspaces: "download/nx-decomp-tools/viking"
+        workspaces: nx-decomp-tools/viking
         cache-directories: |
           download/clang+llvm-3.9.1-x86_64-linux-gnu-ubuntu-16.04
           download/clang+llvm-4.0.1-x86_64-linux-gnu-Fedora-25
