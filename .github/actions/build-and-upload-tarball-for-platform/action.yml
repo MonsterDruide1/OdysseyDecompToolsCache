@@ -32,7 +32,6 @@ runs:
           download/cfe-3.9.1.src/build/bin/clang-3.9
           download/lld-3.9.1.src/build/tools/lld/lld
         key: ${{ inputs.platform }}_llvm-tools
-      shell: bash
     - name: Generate prebuilt archives
       run: |
         echo "CC=clang" >> "$GITHUB_ENV"
