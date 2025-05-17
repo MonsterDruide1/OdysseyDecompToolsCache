@@ -16,6 +16,7 @@ runs:
           if [ ! -f "download/llvm-3.9.1.src/build/bin/llvm-config" ] || [ ! -f "download/cfe-3.9.1.src/build/bin/clang-3.9" ] || [ ! -f "download/lld-3.9.1.src/build/tools/lld/lld" ]; then
             eval "${{ inputs.install_llvm_build_deps_hook }}"
           fi
+      shell: bash
     - name: Set up rust toolchain and caching
       uses: actions-rust-lang/setup-rust-toolchain@v1.12.0
       with:
@@ -31,11 +32,13 @@ runs:
           download/cfe-3.9.1.src/build/bin/clang-3.9
           download/lld-3.9.1.src/build/tools/lld/lld
         key: ${{ inputs.platform }}_llvm-tools
+      shell: bash
     - name: Generate prebuilt archives
       run: |
         echo "CC=clang" >> "$GITHUB_ENV"
         echo "CXX=clang" >> "$GITHUB_ENV"
         ./generate.sh
+      shell: bash
     - uses: actions/upload-artifact@v4
       with:
         name: OdysseyDecomp-binaries_${{ inputs.platform }}
