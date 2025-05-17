@@ -37,7 +37,7 @@ jobs:
 
   generate_arm64_darwin:
     needs: create_release
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
     - name: Check out project
       uses: actions/checkout@v4
