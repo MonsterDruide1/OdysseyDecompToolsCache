@@ -18,7 +18,7 @@ jobs:
           generate_release_notes: true
           make_latest: true
 
-  generate_linux:
+  generate_x86_linux:
     needs: create_release
     runs-on: ubuntu-latest
     steps:
@@ -34,3 +34,20 @@ jobs:
         install_llvm_build_deps_hook: |
           sudo apt update && sudo apt install cmake ninja-build clang -y
           wget http://security.ubuntu.com/ubuntu/pool/universe/p/python2.7/python2.7_2.7.18-13ubuntu1.5_amd64.deb http://security.ubuntu.com/ubuntu/pool/universe/p/python2.7/libpython2.7-stdlib_2.7.18-13ubuntu1.5_amd64.deb http://security.ubuntu.com/ubuntu/pool/universe/p/python2.7/python2.7-minimal_2.7.18-13ubuntu1.5_amd64.deb http://security.ubuntu.com/ubuntu/pool/universe/p/python2.7/libpython2.7-minimal_2.7.18-13ubuntu1.5_amd64.deb && sudo apt install ./libpython2.7-minimal_2.7.18-13ubuntu1.5_amd64.deb ./libpython2.7-stdlib_2.7.18-13ubuntu1.5_amd64.deb ./python2.7-minimal_2.7.18-13ubuntu1.5_amd64.deb ./python2.7_2.7.18-13ubuntu1.5_amd64.deb -y
+
+  generate_arm64_darwin:
+    needs: create_release
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out project
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    - name: Build and upload tools tarball for linux
+      uses: ./.github/actions/build-and-upload-tarball-for-platform
+      with:
+        platform: arm64-Darwin
+        install_llvm_build_deps_hook: |
+          brew update && brew install pyenv cmake ninja
+          pyenv install 2.7.18 && pyenv global 2.7.18
+          echo "PATH=$(pyenv root)/shims:$PATH" >> $GITHUB_ENV
