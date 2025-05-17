@@ -11,10 +11,6 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Check out project
-      uses: actions/checkout@v4
-      with:
-        submodules: recursive
     - name: Install llvm tools build dependencies if needed
       run: |
           if [ ! -f "download/llvm-3.9.1.src/build/bin/llvm-config" ] || [ ! -f "download/cfe-3.9.1.src/build/bin/clang-3.9" ] || [ ! -f "download/lld-3.9.1.src/build/tools/lld/lld" ]; then

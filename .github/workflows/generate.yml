@@ -22,6 +22,10 @@ jobs:
     needs: create_release
     runs-on: ubuntu-latest
     steps:
+    - name: Check out project
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
     - name: Build and upload tools tarball for linux
       uses: ./.github/actions/build-and-upload-tarball-for-platform
       with:
