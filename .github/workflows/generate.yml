@@ -6,12 +6,13 @@ permissions:
 jobs:
   # Seperate release creation workflow that runs first to avoid a race condition
   create_release:
-    if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        if: startsWith(github.ref, 'refs/tags/')
       - name: Create Release
         uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
         with:
           tag_name: ${{ github.ref_name }}
           generate_release_notes: true
