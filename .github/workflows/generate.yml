@@ -29,7 +29,7 @@ jobs:
     - name: Build and upload tools tarball for linux
       uses: ./.github/actions/build-and-upload-tarball-for-platform
       with:
-        platfrom: x86_64-Linux
+        platform: x86_64-Linux
         # https://askubuntu.com/questions/1527867/python-2-7-12-install-on-ubuntu-22-04
         install_llvm_build_deps_hook: |
           sudo apt update && sudo apt install cmake ninja-build clang -y
