@@ -30,10 +30,26 @@ jobs:
       uses: ./.github/actions/build-and-upload-tarball-for-platform
       with:
         platform: x86_64-Linux
+        install_llvm_build_deps_hook: |
+          sudo apt update && sudo apt install cmake ninja-build -y
+          wget http://security.ubuntu.com/ubuntu/pool/universe/p/python2.7/python2.7_2.7.18-13ubuntu1.5_amd64.deb http://security.ubuntu.com/ubuntu/pool/universe/p/python2.7/libpython2.7-stdlib_2.7.18-13ubuntu1.5_amd64.deb http://security.ubuntu.com/ubuntu/pool/universe/p/python2.7/python2.7-minimal_2.7.18-13ubuntu1.5_amd64.deb http://security.ubuntu.com/ubuntu/pool/universe/p/python2.7/libpython2.7-minimal_2.7.18-13ubuntu1.5_amd64.deb && sudo apt install ./libpython2.7-minimal_2.7.18-13ubuntu1.5_arm64.deb ./libpython2.7-stdlib_2.7.18-13ubuntu1.5_arm64.deb ./python2.7-minimal_2.7.18-13ubuntu1.5_arm64.deb ./python2.7_2.7.18-13ubuntu1.5_arm64.deb -y
+
+  generate_arm64_linux:
+    needs: create_release
+    runs-on: ubuntu-24.04-arm
+    steps:
+    - name: Check out project
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    - name: Build and upload tools tarball for arm64 Linux
+      uses: ./.github/actions/build-and-upload-tarball-for-platform
+      with:
+        platform: aarch64-Linux
         # https://askubuntu.com/questions/1527867/python-2-7-12-install-on-ubuntu-22-04
         install_llvm_build_deps_hook: |
           sudo apt update && sudo apt install cmake ninja-build -y
-          wget http://security.ubuntu.com/ubuntu/pool/universe/p/python2.7/python2.7_2.7.18-13ubuntu1.5_amd64.deb http://security.ubuntu.com/ubuntu/pool/universe/p/python2.7/libpython2.7-stdlib_2.7.18-13ubuntu1.5_amd64.deb http://security.ubuntu.com/ubuntu/pool/universe/p/python2.7/python2.7-minimal_2.7.18-13ubuntu1.5_amd64.deb http://security.ubuntu.com/ubuntu/pool/universe/p/python2.7/libpython2.7-minimal_2.7.18-13ubuntu1.5_amd64.deb && sudo apt install ./libpython2.7-minimal_2.7.18-13ubuntu1.5_amd64.deb ./libpython2.7-stdlib_2.7.18-13ubuntu1.5_amd64.deb ./python2.7-minimal_2.7.18-13ubuntu1.5_amd64.deb ./python2.7_2.7.18-13ubuntu1.5_amd64.deb -y
+          wget https://ports.ubuntu.com/ubuntu-ports/pool/universe/p/python2.7/python2.7_2.7.18-13ubuntu1.5_arm64.deb https://ports.ubuntu.com/ubuntu-ports/pool/universe/p/python2.7/libpython2.7-stdlib_2.7.18-13ubuntu1.5_arm64.deb https://ports.ubuntu.com/ubuntu-ports/pool/universe/p/python2.7/python2.7-minimal_2.7.18-13ubuntu1.5_arm64.deb https://ports.ubuntu.com/ubuntu-ports/pool/universe/p/python2.7/libpython2.7-minimal_2.7.18-13ubuntu1.5_arm64.deb && sudo apt install ./libpython2.7-minimal_2.7.18-13ubuntu1.5_arm64.deb ./libpython2.7-stdlib_2.7.18-13ubuntu1.5_arm64.deb ./python2.7-minimal_2.7.18-13ubuntu1.5_arm64.deb ./python2.7_2.7.18-13ubuntu1.5_arm64.deb -y
 
   generate_arm64_darwin:
     needs: create_release
