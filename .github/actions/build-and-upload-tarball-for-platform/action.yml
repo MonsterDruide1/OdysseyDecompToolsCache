@@ -25,7 +25,7 @@ runs:
           fi
       shell: bash
     - name: Set up rust toolchain and caching
-      uses: actions-rust-lang/setup-rust-toolchain@v1.13.0
+      uses: actions-rust-lang/setup-rust-toolchain@v1.14.1
       with:
         cache: true
         cache-workspaces: nx-decomp-tools/viking
