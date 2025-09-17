@@ -69,3 +69,6 @@ jobs:
           # can be removed once a version newer than 2.6.7 is released
           brew update && brew install pyenv --head
           pyenv install 2.7.18 && pyenv global 2.7.18
+          # Downgrade cmake from cmake 4 to cmake 3
+          brew uninstall cmake
+          pip3 install cmake==3.31 --break-system-packages
