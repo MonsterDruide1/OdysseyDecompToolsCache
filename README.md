@@ -6,7 +6,7 @@ See [Releases](https://github.com/MonsterDruide1/OdysseyDecompToolsCache/release
 This repo provides prebuilt binaries for x86_64 Linux and arm64 Darwin (apple silicon) as well as a script for building these tools from source for other platforms.
 
 Prerequisites for running generate.sh:
-  * cmake
+  * cmake 3.x
   * ninja
   * python 2.7 (build dependency of old versions of llvm)
   * a rust toolchain
