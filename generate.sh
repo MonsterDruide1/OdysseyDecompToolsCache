@@ -75,7 +75,13 @@ function build_llvm_binaries {
 
 function build_viking_tools {
     pushd nx-decomp-tools/viking
-    cargo build --manifest-path Cargo.toml --release
+    cargo build --release
+    popd
+}
+
+function build_linter {
+    pushd OdysseyDecompLinter
+    cargo build --release
     popd
 }
 
@@ -114,6 +120,9 @@ function build_archives {
     # Copy nx2elf
     cp nx2elf/nx2elf build/$BIN_OUT_NAME/bin/
 
+    # Copy linter
+    cp OdysseyDecompLinter/target/release/linter build/$BIN_OUT_NAME/bin/
+
     if [ "$1" == "--no-tarball" ]; then
         return
     fi
@@ -133,6 +142,8 @@ mkdir -p download
 # Create/clear build directory
 rm -rf build || true
 mkdir build
+
+build_linter
 
 pushd download
 build_llvm_binaries
