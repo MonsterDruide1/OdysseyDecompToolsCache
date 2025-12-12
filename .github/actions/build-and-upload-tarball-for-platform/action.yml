@@ -35,7 +35,7 @@ runs:
         export "PATH=$HOME/.pyenv/versions/2.7.18/bin:$PATH"
         ./generate.sh
       shell: bash
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v6
       with:
         name: OdysseyDecomp-binaries_${{ inputs.platform }}
         path: build/OdysseyDecomp-binaries_${{ inputs.platform }}.tar.xz
