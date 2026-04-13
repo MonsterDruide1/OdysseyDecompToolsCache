@@ -68,4 +68,4 @@ jobs:
           pyenv install 2.7.18 && pyenv global 2.7.18
           # Downgrade cmake from cmake 4 to cmake 3
           brew uninstall cmake
-          pip3 install "cmake>=3.31,<3.32" --break-system-packages
+          pip3 install \"cmake>=3.31,<3.32\" --break-system-packages
