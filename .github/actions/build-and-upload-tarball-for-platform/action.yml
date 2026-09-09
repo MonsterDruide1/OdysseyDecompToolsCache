@@ -11,13 +11,26 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Get tool versions
+      id: versions
+      run: |
+        if [[ "$RUNNER_OS" == "Linux" ]]; then
+          source /etc/os-release
+          echo "os=${NAME// /-}-${VERSION_ID}" >> "$GITHUB_OUTPUT"
+        elif [[ "$RUNNER_OS" == "macOS" ]]; then
+          echo "os=macOS-$(sw_vers -productVersion)" >> "$GITHUB_OUTPUT"
+        fi
+        echo "clang=$(clang --version | sed -n '1s/.*clang version \([0-9][0-9.]*\).*/\1/p')" >> "$GITHUB_OUTPUT"
+        echo "cmake=$(cmake --version | sed -n '1s/^cmake version //p')" >> "$GITHUB_OUTPUT"
+        echo "ninja=$(ninja --version)" >> "$GITHUB_OUTPUT"
+      shell: bash
     - name: Cache llvm tools
       uses: actions/cache@v5
       with:
         path: |
           download/cfe-3.9.1.src/build/bin/clang-3.9
           download/lld-3.9.1.src/build/tools/lld/lld
-        key: ${{ inputs.platform }}_llvm-tools
+        key: ${{ inputs.platform }}_${{ steps.versions.outputs.os }}_clang-${{ steps.versions.outputs.clang }}_cmake-${{ steps.versions.outputs.cmake }}_ninja-${{ steps.versions.outputs.ninja }}_llvm-tools
     - name: Install llvm tools build dependencies if needed
       run: |
           if [ ! -f "download/cfe-3.9.1.src/build/bin/clang-3.9" ] || [ ! -f "download/lld-3.9.1.src/build/tools/lld/lld" ]; then
