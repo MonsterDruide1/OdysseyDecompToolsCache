@@ -32,7 +32,12 @@ runs:
     - name: Generate prebuilt archives
       run: |
         # Add this to path from macos, needs to be done here so that it doesn't get reset between steps
-        export "PATH=$HOME/.pyenv/versions/2.7.18/bin:$PATH"
+        if [ "${{ inputs.platform }}" == "arm64-Darwin" ]; then
+          export "PATH=$HOME/.pyenv/versions/2.7.18/bin:$PATH"
+          export CC="/opt/homebrew/opt/llvm@19/bin/clang"
+          export CXX="/opt/homebrew/opt/llvm@19/bin/clang++"
+        fi
+
         ./generate.sh
       shell: bash
     - uses: actions/upload-artifact@v7
