@@ -47,8 +47,10 @@ runs:
         # Add this to path from macos, needs to be done here so that it doesn't get reset between steps
         if [ "${{ inputs.platform }}" == "arm64-Darwin" ]; then
           export "PATH=$HOME/.pyenv/versions/2.7.18/bin:$PATH"
-          export CC="/opt/homebrew/opt/llvm@19/bin/clang"
-          export CXX="/opt/homebrew/opt/llvm@19/bin/clang++"
+          if [ -d "/opt/homebrew/opt/llvm@19" ]; then
+            export CC="/opt/homebrew/opt/llvm@19/bin/clang"
+            export CXX="/opt/homebrew/opt/llvm@19/bin/clang++"
+          fi
         fi
 
         ./generate.sh
