@@ -32,6 +32,9 @@ function build_llvm_binaries {
     # Extract llvm 3.9.1 src
     if [ ! -d "llvm-3.9.1.src" ]; then
         tar xf llvm-3.9.1.src.tar.xz
+        pushd llvm-3.9.1.src
+        cat ../../patches/llvm-391-*.patch | patch -p1
+        popd
     fi
 
     # Build llvm 3.9.1
@@ -47,7 +50,7 @@ function build_llvm_binaries {
     if [ ! -d "cfe-3.9.1.src" ]; then
         tar xf cfe-3.9.1.src.tar.xz
         pushd cfe-3.9.1.src
-        patch -p1 < ../../patches/clang-391-compile-fix.patch
+        cat ../../patches/clang-391-*.patch | patch -p1
         popd
     fi
 
@@ -64,7 +67,7 @@ function build_llvm_binaries {
     if [ ! -d "lld-3.9.1.src" ]; then
         tar xf lld-3.9.1.src.tar.xz
         pushd lld-3.9.1.src
-        patch -p1 < ../../patches/lld-3.9.1-standalone.patch
+        cat ../../patches/lld-391-*.patch | patch -p1
         popd
     fi
 
