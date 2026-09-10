@@ -28,9 +28,9 @@ runs:
           echo "CC=/usr/bin/clang" >> "$GITHUB_ENV"
           echo "CXX=/usr/bin/clang++" >> "$GITHUB_ENV"
         elif [[ "$RUNNER_OS" == "macOS" ]]; then
-          brew install llvm@19 ninja
-          echo "CC=/opt/homebrew/opt/llvm@19/bin/clang" >> "$GITHUB_ENV"
-          echo "CXX=/opt/homebrew/opt/llvm@19/bin/clang++" >> "$GITHUB_ENV"
+          brew install llvm@23 ninja
+          echo "CC=/opt/homebrew/opt/llvm@23/bin/clang" >> "$GITHUB_ENV"
+          echo "CXX=/opt/homebrew/opt/llvm@23/bin/clang++" >> "$GITHUB_ENV"
         fi
 
         # install pyenv
