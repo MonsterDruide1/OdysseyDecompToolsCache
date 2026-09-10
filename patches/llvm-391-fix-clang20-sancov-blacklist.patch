@@ -1,0 +1,16 @@
+# known issue/established fix:
+# https://lists.freebsd.org/archives/dev-commits-ports-main/2026-January/176250.html
+
+diff --git a/tools/sancov/sancov.cc b/tools/sancov/sancov.cc
+index 55b03709..0701f666 100644
+--- a/tools/sancov/sancov.cc
++++ b/tools/sancov/sancov.cc
+@@ -282,7 +282,7 @@ private:
+     if (ClBlacklist.empty())
+       return std::unique_ptr<SpecialCaseList>();
+ 
+-    return SpecialCaseList::createOrDie({{ClBlacklist}});
++    return SpecialCaseList::createOrDie({{ClBlacklist.getValue()}});
+   }
+   std::unique_ptr<SpecialCaseList> DefaultBlacklist;
+   std::unique_ptr<SpecialCaseList> UserBlacklist;
