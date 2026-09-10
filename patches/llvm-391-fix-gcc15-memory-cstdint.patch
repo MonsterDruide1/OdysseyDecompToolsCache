@@ -1,0 +1,17 @@
+# starting with clang-21, its libc++ headers use gcc-15, which introduced this commit:
+# https://github.com/gcc-mirror/gcc/commit/3a817a4a5a6d94da9127af3be9f84a74e3076ee2#diff-f62adab8deced2116c4cd4fc4bd2aeeaaa2e5234209a8f1d50752e4e809e8e71L34
+# a side effect of this is that <memory> now does not transitively include <cstdint> anymore
+# => manually add the include to avoid compilation errors
+
+diff --git a/include/llvm/ADT/STLExtras.h b/include/llvm/ADT/STLExtras.h
+index 00b796f..bf26291 100644
+--- a/include/llvm/ADT/STLExtras.h
++++ b/include/llvm/ADT/STLExtras.h
+@@ -20,6 +20,7 @@
+ #include <algorithm> // for std::all_of
+ #include <cassert>
+ #include <cstddef> // for std::size_t
++#include <cstdint> // for intptr_t
+ #include <cstdlib> // for qsort
+ #include <functional>
+ #include <iterator>

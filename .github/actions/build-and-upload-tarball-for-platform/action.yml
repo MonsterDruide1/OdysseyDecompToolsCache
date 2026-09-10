@@ -44,13 +44,21 @@ runs:
         cache-workspaces: nx-decomp-tools/viking
     - name: Generate prebuilt archives
       run: |
+        export "PATH=$HOME/.pyenv/versions/2.7.18/bin:$PATH"
         # Add this to path from macos, needs to be done here so that it doesn't get reset between steps
         if [ "${{ inputs.platform }}" == "arm64-Darwin" ]; then
-          export "PATH=$HOME/.pyenv/versions/2.7.18/bin:$PATH"
           if [ -d "/opt/homebrew/opt/llvm@19" ]; then
             export CC="/opt/homebrew/opt/llvm@19/bin/clang"
             export CXX="/opt/homebrew/opt/llvm@19/bin/clang++"
           fi
+        fi
+        if [ "${{ inputs.platform }}" == "x86_64-Linux" ]; then
+          export CC="/usr/bin/clang"
+          export CXX="/usr/bin/clang++"
+        fi
+        if [ "${{ inputs.platform }}" == "aarch64-Linux" ]; then
+          export CC="/usr/bin/clang"
+          export CXX="/usr/bin/clang++"
         fi
 
         ./generate.sh

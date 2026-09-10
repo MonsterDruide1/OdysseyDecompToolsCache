@@ -20,7 +20,7 @@ jobs:
 
   generate_x86_linux:
     needs: create_release
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
     - name: Check out project
       uses: actions/checkout@v7
@@ -31,12 +31,21 @@ jobs:
       with:
         platform: x86_64-Linux
         install_llvm_build_deps_hook: |
-          sudo apt update && sudo apt install cmake ninja-build -y
-          wget http://security.ubuntu.com/ubuntu/pool/universe/p/python2.7/python2.7_2.7.18-13ubuntu1.5_amd64.deb http://security.ubuntu.com/ubuntu/pool/universe/p/python2.7/libpython2.7-stdlib_2.7.18-13ubuntu1.5_amd64.deb http://security.ubuntu.com/ubuntu/pool/universe/p/python2.7/python2.7-minimal_2.7.18-13ubuntu1.5_amd64.deb http://security.ubuntu.com/ubuntu/pool/universe/p/python2.7/libpython2.7-minimal_2.7.18-13ubuntu1.5_amd64.deb && sudo apt install ./libpython2.7-minimal_2.7.18-13ubuntu1.5_amd64.deb ./libpython2.7-stdlib_2.7.18-13ubuntu1.5_amd64.deb ./python2.7-minimal_2.7.18-13ubuntu1.5_amd64.deb ./python2.7_2.7.18-13ubuntu1.5_amd64.deb -y
+          sudo apt update && sudo apt install ninja-build clang -y
+          # install required libraries, then python-2 using pyenv
+          sudo apt install libreadline-dev libbz2-dev -y
+          curl -fsSL https://pyenv.run | bash
+          export PATH="$HOME/.pyenv/bin:$HOME/.pyenv/shims:$PATH"
+          eval "$(pyenv init -)"
+          pyenv install 2.7.18 && pyenv global 2.7.18
+          # Downgrade cmake from cmake 4 to cmake 3
+          # required to support CMP0051: https://cmake.org/cmake/help/latest/policy/CMP0051.html
+          sudo apt remove cmake -y
+          pip3 install \"cmake>=3.31,<3.32\" --break-system-packages
 
   generate_arm64_linux:
     needs: create_release
-    runs-on: ubuntu-24.04-arm
+    runs-on: ubuntu-26.04-arm
     steps:
     - name: Check out project
       uses: actions/checkout@v7
@@ -46,10 +55,18 @@ jobs:
       uses: ./.github/actions/build-and-upload-tarball-for-platform
       with:
         platform: aarch64-Linux
-        # https://askubuntu.com/questions/1527867/python-2-7-12-install-on-ubuntu-22-04
         install_llvm_build_deps_hook: |
-          sudo apt update && sudo apt install cmake ninja-build -y
-          wget https://ports.ubuntu.com/ubuntu-ports/pool/universe/p/python2.7/python2.7_2.7.18-13ubuntu1.5_arm64.deb https://ports.ubuntu.com/ubuntu-ports/pool/universe/p/python2.7/libpython2.7-stdlib_2.7.18-13ubuntu1.5_arm64.deb https://ports.ubuntu.com/ubuntu-ports/pool/universe/p/python2.7/python2.7-minimal_2.7.18-13ubuntu1.5_arm64.deb https://ports.ubuntu.com/ubuntu-ports/pool/universe/p/python2.7/libpython2.7-minimal_2.7.18-13ubuntu1.5_arm64.deb && sudo apt install ./libpython2.7-minimal_2.7.18-13ubuntu1.5_arm64.deb ./libpython2.7-stdlib_2.7.18-13ubuntu1.5_arm64.deb ./python2.7-minimal_2.7.18-13ubuntu1.5_arm64.deb ./python2.7_2.7.18-13ubuntu1.5_arm64.deb -y
+          sudo apt update && sudo apt install ninja-build clang -y
+          # install required libraries, then python-2 using pyenv
+          sudo apt install libreadline-dev libbz2-dev -y
+          curl -fsSL https://pyenv.run | bash
+          export PATH="$HOME/.pyenv/bin:$HOME/.pyenv/shims:$PATH"
+          eval "$(pyenv init -)"
+          pyenv install 2.7.18 && pyenv global 2.7.18
+          # Downgrade cmake from cmake 4 to cmake 3
+          # required to support CMP0051: https://cmake.org/cmake/help/latest/policy/CMP0051.html
+          sudo apt remove cmake -y
+          pip3 install \"cmake>=3.31,<3.32\" --break-system-packages
 
   generate_arm64_darwin:
     needs: create_release
