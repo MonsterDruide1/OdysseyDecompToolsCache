@@ -22,7 +22,7 @@ jobs:
     needs: create_release
     strategy:
       matrix:
-        runner: [ubuntu-26.04, ubuntu-26.04-arm, macos-latest]
+        runner: [ubuntu-26.04, ubuntu-26.04-arm, macos-26, macos-26-intel]
     runs-on: ${{ matrix.runner }}
     steps:
     - name: Check out project
