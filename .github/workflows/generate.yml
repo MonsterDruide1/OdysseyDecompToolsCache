@@ -17,73 +17,17 @@ jobs:
           tag_name: ${{ github.ref_name }}
           generate_release_notes: true
           make_latest: true
-
-  generate_x86_linux:
+  
+  generate:
     needs: create_release
-    runs-on: ubuntu-26.04
+    strategy:
+      matrix:
+        runner: [ubuntu-26.04, ubuntu-26.04-arm, macos-latest]
+    runs-on: ${{ matrix.runner }}
     steps:
     - name: Check out project
       uses: actions/checkout@v7
       with:
         submodules: recursive
-    - name: Build and upload tools tarball for x86_64 Linux
+    - name: Build and upload tools tarball
       uses: ./.github/actions/build-and-upload-tarball-for-platform
-      with:
-        platform: x86_64-Linux
-        install_llvm_build_deps_hook: |
-          sudo apt update && sudo apt install ninja-build clang -y
-          # install required libraries, then python-2 using pyenv
-          sudo apt install libreadline-dev libbz2-dev -y
-          curl -fsSL https://pyenv.run | bash
-          export PATH="$HOME/.pyenv/bin:$HOME/.pyenv/shims:$PATH"
-          eval "$(pyenv init -)"
-          pyenv install 2.7.18 && pyenv global 2.7.18
-          # Downgrade cmake from cmake 4 to cmake 3
-          # required to support CMP0051: https://cmake.org/cmake/help/latest/policy/CMP0051.html
-          sudo apt remove cmake -y
-          pip3 install \"cmake>=3.31,<3.32\" --break-system-packages
-
-  generate_arm64_linux:
-    needs: create_release
-    runs-on: ubuntu-26.04-arm
-    steps:
-    - name: Check out project
-      uses: actions/checkout@v7
-      with:
-        submodules: recursive
-    - name: Build and upload tools tarball for arm64 Linux
-      uses: ./.github/actions/build-and-upload-tarball-for-platform
-      with:
-        platform: aarch64-Linux
-        install_llvm_build_deps_hook: |
-          sudo apt update && sudo apt install ninja-build clang -y
-          # install required libraries, then python-2 using pyenv
-          sudo apt install libreadline-dev libbz2-dev -y
-          curl -fsSL https://pyenv.run | bash
-          export PATH="$HOME/.pyenv/bin:$HOME/.pyenv/shims:$PATH"
-          eval "$(pyenv init -)"
-          pyenv install 2.7.18 && pyenv global 2.7.18
-          # Downgrade cmake from cmake 4 to cmake 3
-          # required to support CMP0051: https://cmake.org/cmake/help/latest/policy/CMP0051.html
-          sudo apt remove cmake -y
-          pip3 install \"cmake>=3.31,<3.32\" --break-system-packages
-
-  generate_arm64_darwin:
-    needs: create_release
-    runs-on: macos-latest
-    steps:
-    - name: Check out project
-      uses: actions/checkout@v7
-      with:
-        submodules: recursive
-    - name: Build and upload tools tarball for arm64 Darwin
-      uses: ./.github/actions/build-and-upload-tarball-for-platform
-      with:
-        platform: arm64-Darwin
-        install_llvm_build_deps_hook: |
-          brew update && brew install pyenv
-          pyenv install 2.7.18 && pyenv global 2.7.18
-          # Downgrade cmake from cmake 4 to cmake 3
-          brew uninstall cmake
-          pip3 install \"cmake>=3.31,<3.32\" --break-system-packages
-          brew install llvm@19

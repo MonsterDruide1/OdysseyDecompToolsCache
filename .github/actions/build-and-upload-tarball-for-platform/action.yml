@@ -1,16 +1,63 @@
-name: "Build and upload decomp tool binaries for the specifed platform"
-description: "Builds and uploads a tarball with decomp tools for specified platform"
+name: "Build and upload decomp tool binaries for the current platform"
+description: "Builds and uploads a tarball with decomp tools for current platform"
 
-inputs:
-    platform:
-      required: true
-      type: string
-    install_llvm_build_deps_hook:
-      required: true
-      type: string
 runs:
   using: "composite"
   steps:
+    - name: Collect platform data
+      id: platform
+      run: |
+        OS=$(uname -s)
+        ARCH=$(uname -m)
+        echo "os=$OS" >> "$GITHUB_OUTPUT"
+        echo "arch=$ARCH" >> "$GITHUB_OUTPUT"
+        echo "full=$ARCH-$OS" >> "$GITHUB_OUTPUT"
+      shell: bash
+    - name: Install llvm tools build dependencies
+      run: |
+        # update package manager metadata
+        if [[ "$RUNNER_OS" == "Linux" ]]; then
+          sudo apt update
+        elif [[ "$RUNNER_OS" == "macOS" ]]; then
+          brew update
+        fi
+
+        # install clang and ninja-build, and make clang default compiler
+        if [[ "$RUNNER_OS" == "Linux" ]]; then
+          sudo apt install clang ninja-build -y
+          echo "CC=/usr/bin/clang" >> "$GITHUB_ENV"
+          echo "CXX=/usr/bin/clang++" >> "$GITHUB_ENV"
+        elif [[ "$RUNNER_OS" == "macOS" ]]; then
+          brew install llvm@19 ninja
+          echo "CC=/opt/homebrew/opt/llvm@19/bin/clang" >> "$GITHUB_ENV"
+          echo "CXX=/opt/homebrew/opt/llvm@19/bin/clang++" >> "$GITHUB_ENV"
+        fi
+
+        # install pyenv
+        if [[ "$RUNNER_OS" == "Linux" ]]; then
+          sudo apt install libreadline-dev libbz2-dev -y
+          curl -fsSL https://pyenv.run | bash
+        elif [[ "$RUNNER_OS" == "macOS" ]]; then
+          brew install pyenv
+        fi
+        export PATH="$HOME/.pyenv/bin:$PATH"
+        eval "$(pyenv init -)"
+
+        # install python using pyenv and prepare $PATH of subsequent steps
+        pyenv install 2.7.18 && pyenv global 2.7.18
+        echo "$HOME/.pyenv/shims" >> "$GITHUB_PATH"
+
+        # downgrade cmake to cmake 3
+        # required to support CMP0051: https://cmake.org/cmake/help/latest/policy/CMP0051.html
+        if [[ "$RUNNER_OS" == "Linux" ]]; then
+          sudo apt remove cmake -y
+          sudo apt install python3-pip
+        elif [[ "$RUNNER_OS" == "macOS" ]]; then
+          brew uninstall cmake
+          brew install python
+        fi
+        pip3 install "cmake>=3.31,<3.32" --break-system-packages
+      shell: bash
     - name: Get tool versions
       id: versions
       run: |
@@ -20,7 +67,7 @@ runs:
         elif [[ "$RUNNER_OS" == "macOS" ]]; then
           echo "os=macOS-$(sw_vers -productVersion)" >> "$GITHUB_OUTPUT"
         fi
-        echo "clang=$(clang --version | sed -n '1s/.*clang version \([0-9][0-9.]*\).*/\1/p')" >> "$GITHUB_OUTPUT"
+        echo "clang=$($CC --version | sed -n '1s/.*clang version \([0-9][0-9.]*\).*/\1/p')" >> "$GITHUB_OUTPUT"
         echo "cmake=$(cmake --version | sed -n '1s/^cmake version //p')" >> "$GITHUB_OUTPUT"
         echo "ninja=$(ninja --version)" >> "$GITHUB_OUTPUT"
       shell: bash
@@ -30,48 +77,24 @@ runs:
         path: |
           download/cfe-3.9.1.src/build/bin/clang-3.9
           download/lld-3.9.1.src/build/tools/lld/lld
-        key: ${{ inputs.platform }}_${{ steps.versions.outputs.os }}_clang-${{ steps.versions.outputs.clang }}_cmake-${{ steps.versions.outputs.cmake }}_ninja-${{ steps.versions.outputs.ninja }}_llvm-tools
-    - name: Install llvm tools build dependencies if needed
-      run: |
-          if [ ! -f "download/cfe-3.9.1.src/build/bin/clang-3.9" ] || [ ! -f "download/lld-3.9.1.src/build/tools/lld/lld" ]; then
-            eval "${{ inputs.install_llvm_build_deps_hook }}"
-          fi
-      shell: bash
+        key: ${{ steps.platform.outputs.full }}_${{ steps.versions.outputs.os }}_clang-${{ steps.versions.outputs.clang }}_cmake-${{ steps.versions.outputs.cmake }}_ninja-${{ steps.versions.outputs.ninja }}_llvm-tools
     - name: Set up rust toolchain and caching
       uses: actions-rust-lang/setup-rust-toolchain@v2.0.0
       with:
         cache: true
         cache-workspaces: nx-decomp-tools/viking
     - name: Generate prebuilt archives
-      run: |
-        export "PATH=$HOME/.pyenv/versions/2.7.18/bin:$PATH"
-        # Add this to path from macos, needs to be done here so that it doesn't get reset between steps
-        if [ "${{ inputs.platform }}" == "arm64-Darwin" ]; then
-          if [ -d "/opt/homebrew/opt/llvm@19" ]; then
-            export CC="/opt/homebrew/opt/llvm@19/bin/clang"
-            export CXX="/opt/homebrew/opt/llvm@19/bin/clang++"
-          fi
-        fi
-        if [ "${{ inputs.platform }}" == "x86_64-Linux" ]; then
-          export CC="/usr/bin/clang"
-          export CXX="/usr/bin/clang++"
-        fi
-        if [ "${{ inputs.platform }}" == "aarch64-Linux" ]; then
-          export CC="/usr/bin/clang"
-          export CXX="/usr/bin/clang++"
-        fi
-
-        ./generate.sh
+      run: ./generate.sh
       shell: bash
     - uses: actions/upload-artifact@v7
       with:
-        name: OdysseyDecomp-binaries_${{ inputs.platform }}
-        path: build/OdysseyDecomp-binaries_${{ inputs.platform }}.tar.xz
+        name: OdysseyDecomp-binaries_${{ steps.platform.outputs.full }}
+        path: build/OdysseyDecomp-binaries_${{ steps.platform.outputs.full }}.tar.xz
     - uses: softprops/action-gh-release@v3
       if: startsWith(github.ref, 'refs/tags/')
       with:
         tag_name: ${{ github.ref_name }}
         files: |
-          build/OdysseyDecomp-binaries_${{ inputs.platform }}.tar.xz
+          build/OdysseyDecomp-binaries_${{ steps.platform.outputs.full }}.tar.xz
         preserve_order: true
         fail_on_unmatched_files: true
