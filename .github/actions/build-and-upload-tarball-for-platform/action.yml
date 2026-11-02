@@ -79,7 +79,7 @@ runs:
           download/lld-3.9.1.src/build/tools/lld/lld
         key: ${{ steps.platform.outputs.full }}_${{ steps.versions.outputs.os }}_clang-${{ steps.versions.outputs.clang }}_cmake-${{ steps.versions.outputs.cmake }}_ninja-${{ steps.versions.outputs.ninja }}_llvm-tools
     - name: Set up rust toolchain and caching
-      uses: actions-rust-lang/setup-rust-toolchain@v2.0.0
+      uses: actions-rust-lang/setup-rust-toolchain@v2.0.1
       with:
         cache: true
         cache-workspaces: nx-decomp-tools/viking
